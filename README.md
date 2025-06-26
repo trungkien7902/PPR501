@@ -62,5 +62,24 @@ If you have test scripts, run them as needed (e.g., with pytest or httpx).
 
 ---
 
-For any issues, check your environment variables, database connection, and installed dependencies. If you need further help, please contact the project maintainer.
+## Alembic Setup
 
+1. Install Alembic (if not already installed):
+   ```bash
+   pip install alembic
+   ```
+2. Initialize Alembic (if not already initialized):
+   ```bash
+   alembic init alembic
+   ```
+3. Configure your database URL in `alembic.ini` or in `alembic/env.py`.
+4. Generate a new migration after making model changes:
+   ```bash
+   alembic revision --autogenerate -m "Your migration message"
+   ```
+5. Apply migrations to the database:
+   ```bash
+   alembic upgrade head
+   ```
+
+For any issues, check your environment variables, database connection, and installed dependencies. If you need further help, please contact the project maintainer.
