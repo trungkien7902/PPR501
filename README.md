@@ -50,12 +50,12 @@ This will create all tables in your database.
 
 ## 8. Run the Application
 ```
-uvicorn main:app --reload
+uvicorn main:app --reload --port [CHANGE_PORT_HERE]
 ```
-The API will be available at `http://localhost:8000`.
+The API will be available at `http://localhost:[PORT]`.
 
 ## 9. API Documentation
-Visit `http://localhost:8000/docs` for interactive API docs (Swagger UI).
+Visit `http://localhost:[PORT]/docs` for interactive API docs (Swagger UI).
 
 ## 10. Running Tests
 If you have test scripts, run them as needed (e.g., with pytest or httpx).

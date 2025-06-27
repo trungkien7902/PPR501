@@ -1,22 +1,31 @@
+from typing import Optional
 from app.model.account_model import Account
 from app.core.db_connect import SessionLocal
-from app.utils.jwt_util import verify_password, create_access_token
+from app.utils.jwt_util import verify_password, create_access_token, create_refresh_token
 from sqlalchemy.orm import Session
+from app.schema.req.auth_request_schema import AuthRequest
+from app.schema.res.auth_reponse_schema import TokenResponse
 
-def login(username: str, password: str) -> str:
+
+def login(auth_request: AuthRequest) -> Optional[TokenResponse]:
     db: Session = SessionLocal()
     try:
-        user = (db.query(Account)
-                .filter(Account.username == username)
-                .first())
-        if not user or not verify_password(password, user.hashed_password):
+        user = (
+            db.query(Account)
+            .filter(Account.username == auth_request.username)
+            .first()
+        )
+        if not user or not verify_password(auth_request.password, user.hashed_password):
             return None
         token_data = {
             "sub": user.username,
             "role": user.role,
             "user_id": user.id
         }
-        return create_access_token(token_data)
+        response = TokenResponse(
+            access_token=create_access_token(token_data),
+            refresh_token=create_refresh_token(token_data)
+        )
+        return response
     finally:
         db.close()
-
