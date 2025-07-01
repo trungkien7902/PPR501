@@ -3,8 +3,8 @@ from app.model.account_model import Account
 from app.core.db_connect import SessionLocal
 from app.utils.jwt_util import verify_password, create_access_token, create_refresh_token
 from sqlalchemy.orm import Session
-from app.schema.req.auth_request_schema import AuthRequest
-from app.schema.res.auth_reponse_schema import TokenResponse
+
+from app.schema.schema import AuthRequest, TokenResponse
 
 
 def login(auth_request: AuthRequest) -> Optional[TokenResponse]:

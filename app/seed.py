@@ -41,5 +41,19 @@ def seed_accounts():
     finally:
         db.close()
 
+def seed_subject():
+    db = SessionLocal()
+    try:
+        from app.model.exam_model import Subject
+        subjects = [
+            Subject(name="Python cho kỹ sư", subject_code="PPR501"),
+            Subject(name="Xử lý tín hiệu số", subject_code="DSP501")
+        ]
+        db.add_all(subjects)
+        db.commit()
+        print("Seeded subjects.")
+    finally:
+        db.close()
 if __name__ == "__main__":
-    seed_accounts()
+    # seed_accounts()
+    seed_subject()

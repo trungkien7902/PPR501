@@ -1,5 +1,5 @@
-from typing import Generic, TypeVar
-from pydantic import BaseModel, constr
+from typing import Generic, TypeVar, List
+from pydantic import BaseModel, constr, ConfigDict
 
 T = TypeVar("T")
 
@@ -11,7 +11,6 @@ class IResponseBase(BaseModel, Generic[T]):
 
 
 # Auth Service Schema
-
 ## Request
 class AuthRequest(BaseModel):
     username: str
@@ -22,3 +21,26 @@ class AuthRequest(BaseModel):
 class TokenResponse(BaseModel):
     access_token: str
     refresh_token: str
+
+
+# Exam Service Schema
+class QuestionOptionSchema(BaseModel):
+    option_text: str
+    is_correct: bool
+
+    model_config = ConfigDict(from_attributes=True)
+
+class ExamQuestionSchema(BaseModel):
+    question_text: str
+    options: List[QuestionOptionSchema]
+
+    model_config = ConfigDict(from_attributes=True)
+
+class CreateExamSchema(BaseModel):
+    subject_id: int
+    valid_date: str
+    start_time: str
+    duration: int
+    question: List[ExamQuestionSchema]
+
+    model_config = ConfigDict(from_attributes=True)
