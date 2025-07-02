@@ -3,6 +3,10 @@ import re
 
 from app.model.exam_model import ExamQuestion, QuestionOption
 
+# regex
+QUESTION_LABEL_REGEX = r'^c[âa]u\s*\d+\s*:\s*' # Matches "câu 1:", "câu 2:", etc.
+OPTION_LABEL_REGEX = r'^[A-Ea-e]\.\s+'         # Matches "A. ", "B. ", etc.
+CORRECT_ANSWER_REGEX = r'^đ[áaă]p\s*á[nn]\s*:\s*([A-E](?:\s*,\s*[A-E])*)' # Matches "đáp án: A, B", "đáp án: C", etc.
 
 def parse_questions_from_docx(file_path: str) -> list[ExamQuestion]:
     document = Document(file_path)
@@ -10,23 +14,23 @@ def parse_questions_from_docx(file_path: str) -> list[ExamQuestion]:
     result: list[ExamQuestion] = []
     idx = 0
     while idx < len(lines):
-        # Handle question label: "Câu 1:", "câu1 :", "CAU    2   :"...
-        if re.match(r'^c[âa]u\s*\d+\s*:', lines[idx], flags=re.IGNORECASE):
-            question_text = re.sub(r'^c[âa]u\s*\d+\s*:\s*', '', lines[idx], flags=re.IGNORECASE)
+        # Handle question label:
+        if re.match(QUESTION_LABEL_REGEX, lines[idx], flags=re.IGNORECASE):
+            question_text = re.sub(QUESTION_LABEL_REGEX, '', lines[idx], flags=re.IGNORECASE)
             idx += 1
 
             # Handle option
             raw_options = []
-            while idx < len(lines) and re.match(r'^[A-Ea-e]\.\s+', lines[idx]):
+            while idx < len(lines) and re.match(OPTION_LABEL_REGEX, lines[idx]):
                 label = lines[idx][0].upper()
-                text = re.sub(r'^[A-Ea-e]\.\s*', '', lines[idx])
+                text = re.sub(OPTION_LABEL_REGEX, '', lines[idx])
                 raw_options.append((label, text))
                 idx += 1
 
             # Handle answer
             correct_labels = []
             if idx < len(lines) and re.match(r'^đ[áaă]p\s*á[nn]\s*:', lines[idx], flags=re.IGNORECASE):
-                match = re.search(r'^đ[áaă]p\s*á[nn]\s*:\s*([A-E](?:\s*,\s*[A-E])*)', lines[idx], flags=re.IGNORECASE)
+                match = re.search(CORRECT_ANSWER_REGEX, lines[idx], flags=re.IGNORECASE)
                 if match:
                     correct_labels = [s.strip().upper() for s in match.group(1).split(",")]
                 idx += 1

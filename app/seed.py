@@ -55,5 +55,5 @@ def seed_subject():
     finally:
         db.close()
 if __name__ == "__main__":
-    # seed_accounts()
+    seed_accounts()
     seed_subject()

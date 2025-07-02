@@ -4,8 +4,6 @@ from fastapi import APIRouter, UploadFile, File, HTTPException
 import tempfile
 import shutil
 from fastapi.responses import JSONResponse
-
-from app.model.exam_model import ExamQuestion
 from app.schema.schema import IResponseBase, ExamQuestionSchema
 from app.service.file_service import parse_questions_from_docx
 
