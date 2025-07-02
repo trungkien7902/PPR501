@@ -57,12 +57,9 @@ The API will be available at `http://localhost:[PORT]`.
 ## 9. API Documentation
 Visit `http://localhost:[PORT]/docs` for interactive API docs (Swagger UI).
 
-## 10. Running Tests
-If you have test scripts, run them as needed (e.g., with pytest or httpx).
-
 ---
 
-## Alembic Setup
+## Alembic
 
 1. Install Alembic (if not already installed):
    ```bash
@@ -82,4 +79,17 @@ If you have test scripts, run them as needed (e.g., with pytest or httpx).
    alembic upgrade head
    ```
 
-For any issues, check your environment variables, database connection, and installed dependencies. If you need further help, please contact the project maintainer.
+
+## Quick setup when using Pycharm IDE
+1. Open the project in PyCharm.
+2. Go to `File` -> `Settings` -> `Project: [Your Project Name]` -> `Python Interpreter`.
+3. Click on the gear icon and select `Add...`.
+4. Choose `Virtualenv Environment` and select `New environment`.
+5. Set the base interpreter to Python 3.10 or newer.
+6. Click `OK` to create the virtual environment.
+7. Once the environment is created, install the dependencies:
+   - Open the terminal in PyCharm.
+   - Run `pip install -r requirement.txt`.
+8. Run the application:
+   - Open the terminal in PyCharm.
+   - Run `uvicorn main:app --reload --port [CHANGE_PORT_HERE]`.
