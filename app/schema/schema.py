@@ -1,4 +1,4 @@
-from typing import Generic, TypeVar, List
+from typing import Generic, TypeVar, List, Optional
 from pydantic import BaseModel, constr, ConfigDict
 
 T = TypeVar("T")
@@ -24,23 +24,25 @@ class TokenResponse(BaseModel):
 
 
 # Exam Service Schema
-class QuestionOptionSchema(BaseModel):
-    option_text: str
-    is_correct: bool
+class QuestionChoice(BaseModel):
+    content: str
+    is_correct: bool = False
 
-    model_config = ConfigDict(from_attributes=True)
 
-class ExamQuestionSchema(BaseModel):
-    question_text: str
-    options: List[QuestionOptionSchema]
+class QuestionPreview(BaseModel):
+    content: Optional[str] = None
+    file_id: Optional[str] = None
+    mark: float = 1.0
+    unit: Optional[str] = None
+    mix_choices: bool = False
+    options: List[QuestionChoice] = []
 
-    model_config = ConfigDict(from_attributes=True)
-
-class CreateExamSchema(BaseModel):
-    subject_id: int
-    valid_date: str
-    start_time: str
-    duration: int
-    question: List[ExamQuestionSchema]
-
-    model_config = ConfigDict(from_attributes=True)
+class ExamPreview(BaseModel):
+    name: Optional[str] = None
+    subject_id: Optional[str] = None
+    number_quiz: Optional[int] = 0
+    start_date: Optional[str] = None
+    duration_minutes: Optional[int] = 0
+    description: Optional[str] = None
+    is_active: Optional[bool] = True
+    questions: List[QuestionPreview] = []

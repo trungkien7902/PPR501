@@ -1,5 +1,5 @@
 from typing import Optional
-from app.model.account_model import Account
+from app.model.models import Account
 from app.core.db_connect import SessionLocal
 from app.utils.jwt_util import verify_password, create_access_token, create_refresh_token
 from sqlalchemy.orm import Session

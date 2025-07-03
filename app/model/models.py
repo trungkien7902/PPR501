@@ -43,7 +43,7 @@ class Exam(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), nullable=False, index=True)
     subject_id = Column(Integer, ForeignKey("subjects.id"), nullable=False, index=True)
-    total_marks = Column(Float, nullable=False)
+    number_quiz = Column(Integer, nullable=False)
     start_date = Column(DateTime, nullable=False)
     duration_minutes = Column(Integer, nullable=False)
     description = Column(Text, nullable=True)
