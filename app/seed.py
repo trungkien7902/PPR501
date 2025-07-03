@@ -1,5 +1,5 @@
 from app.core.db_connect import SessionLocal
-from app.model.account_model import Account
+from app.model.models import Account, Subject
 from app.utils.jwt_util import hash_password
 
 def seed_accounts():
@@ -44,16 +44,22 @@ def seed_accounts():
 def seed_subject():
     db = SessionLocal()
     try:
-        from app.model.exam_model import Subject
         subjects = [
             Subject(name="Python cho kỹ sư", subject_code="PPR501"),
-            Subject(name="Xử lý tín hiệu số", subject_code="DSP501")
+            Subject(name="Xử lý tín hiệu số", subject_code="DSP501"),
+            Subject(name="Cơ sở dữ liệu", subject_code="DBI101"),
+            Subject(name="Trí tuệ nhân tạo", subject_code="AI601"),
+            Subject(name="Nhập môn mạng máy tính", subject_code="NET101"),
+            Subject(name="Hệ điều hành", subject_code="OS202"),
+            Subject(name="Kiến trúc máy tính", subject_code="CAO201"),
+            Subject(name="Cấu trúc dữ liệu và giải thuật", subject_code="DSA301"),
         ]
         db.add_all(subjects)
         db.commit()
         print("Seeded subjects.")
     finally:
         db.close()
+
 if __name__ == "__main__":
-    seed_accounts()
+    # seed_accounts()
     seed_subject()
