@@ -74,34 +74,6 @@ def save_image_from_docx(docx_path: str) -> dict:
     return image_map
 
 
-from typing import List
-from docx import Document
-import re
-import os
-import zipfile
-from uuid import uuid4
-
-from app.schema.schema import QuestionPreview, QuestionChoice
-
-
-IMAGE_FOLDER = "static/images"
-
-
-def save_image_from_docx(docx_path: str) -> dict:
-    image_map = {}
-    with zipfile.ZipFile(docx_path) as docx_zip:
-        for file in docx_zip.namelist():
-            if file.startswith("word/media/"):
-                ext = os.path.splitext(file)[1]
-                img_data = docx_zip.read(file)
-                filename = f"{uuid4().hex}{ext}"
-                filepath = os.path.join(IMAGE_FOLDER, filename)
-                with open(filepath, "wb") as f:
-                    f.write(img_data)
-                image_map[file.split("/")[-1]] = filepath
-    return image_map
-
-
 def extract_questions(docx_path: str) -> List[QuestionPreview]:
     doc = Document(docx_path)
     questions: List[QuestionPreview] = []
