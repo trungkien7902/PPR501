@@ -10,11 +10,13 @@ class IResponseBase(BaseModel, Generic[T]):
     message: str = "Success"
     items: T | None = None
 
+
 # Exception handler
 class CustomException(Exception):
     def __init__(self, message: str = "Có lỗi xảy ra", status_code: int = HTTPStatus.INTERNAL_SERVER_ERROR):
         self.message = message
         self.status_code = status_code
+
 
 # Auth Service Schema
 ## Request
@@ -42,6 +44,7 @@ class QuestionPreview(BaseModel):
     unit: Optional[str] = None
     mix_choices: bool = False
     options: List[QuestionChoice] = []
+
 
 class ExamPreview(BaseModel):
     name: Optional[str] = None

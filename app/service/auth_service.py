@@ -20,23 +20,23 @@ def login(auth_request: AuthRequest) -> TokenResponse:
 
         user = db.query(Account).filter(Account.username == auth_request.username).first()
 
-        if not user or verify_password(auth_request.password, str(user.hashed_password)):
+        if not user or not verify_password(auth_request.password, str(user.hashed_password)):
             raise CustomException(
-                "Mật khẩu không chính xác.",
+                "Tên đăng nhập hoặc mật khẩu không chính xác.",
                 HTTPStatus.UNAUTHORIZED
             )
+
         token_data = {
             "sub": user.username,
             "role": user.role,
             "user_id": user.id
         }
 
-        response = TokenResponse(
+        return TokenResponse(
             access_token=create_access_token(token_data),
             refresh_token=create_refresh_token(token_data)
         )
 
-        return response
     except CustomException:
         raise
     except Exception as e:

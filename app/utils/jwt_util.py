@@ -1,8 +1,12 @@
+from http import HTTPStatus
+
 import jwt
 from datetime import datetime, timedelta
 from app.core.config import JWT_SECRET_KEY, JWT_ALGORITHM, JWT_EXP_DELTA_SECONDS
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
+
+from app.schema.schema import CustomException
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
 
@@ -22,16 +26,22 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 def create_access_token(data: dict):
     to_encode = data.copy()
     expire = datetime.utcnow() + timedelta(seconds=JWT_EXP_DELTA_SECONDS)
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
-    return encoded_jwt
+    to_encode.update({
+        "exp": expire,
+        "type": "access"
+    })
+    return jwt.encode(to_encode, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
+
 
 def create_refresh_token(data: dict):
     to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(days=30)  # Refresh token valid for 30 days
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
-    return encoded_jwt
+    expire = datetime.utcnow() + timedelta(days=30)
+    to_encode.update({
+        "exp": expire,
+        "type": "refresh"
+    })
+    return jwt.encode(to_encode, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
+
 
 # Decode JWT token
 def decode_access_token(token: str):
@@ -39,9 +49,15 @@ def decode_access_token(token: str):
         payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
         return payload
     except jwt.ExpiredSignatureError:
-        return None
+        raise CustomException(
+            "Token hết hạn sử dụng",
+            HTTPStatus.UNAUTHORIZED
+        )
     except jwt.InvalidTokenError:
-        return None
+        raise CustomException(
+            "Token không hợp lệ",
+            HTTPStatus.UNAUTHORIZED
+        )
 
 def get_current_user(token: str = Depends(oauth2_scheme)):
     payload = decode_access_token(token)

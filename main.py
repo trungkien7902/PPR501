@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from app.api import auth_api, exam_api
+from app.middleware.auth_middleware import AuthMiddleware
 from app.schema.schema import IResponseBase, CustomException
 
 app = FastAPI(
@@ -10,6 +11,7 @@ app = FastAPI(
     version="1.0.0",
     docs_url="/docs",
 )
+app.add_middleware(AuthMiddleware)
 
 
 @app.exception_handler(CustomException)
