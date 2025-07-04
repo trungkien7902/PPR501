@@ -1,15 +1,20 @@
 import os
 import re
-import uuid
+from http import HTTPStatus
 from typing import List
 from docx import Document
 import zipfile
-from app.core.db_connect import SessionLocal
+
+from app.core.app_config import CustomException
 from app.model.models import Subject
 from app.schema.schema import ExamPreview, QuestionPreview, QuestionChoice
-from app.utils.date_time_utils import is_valid_date
+from app.utils.date_time_utils import is_valid_date, convert_to_datetime
+from app.model.models import Exam, ExamQuestion, QuestionChoice
+from app.core.db_connect import SessionLocal
+import uuid
 
 IMAGE_FOLDER = "static/images"
+db = SessionLocal()
 
 
 def extract_exam_info(docx_path: str) -> ExamPreview:
@@ -47,7 +52,6 @@ def extract_exam_info(docx_path: str) -> ExamPreview:
             subject_code = value
         else:
             setattr(exam, field, value)
-
 
     # Query DB for subject_id if subject_code is found
     if subject_code:
@@ -149,8 +153,89 @@ def extract_questions(docx_path: str) -> List[QuestionPreview]:
     return questions
 
 
-
 def parse_full_exam(docx_path: str) -> ExamPreview:
     exam = extract_exam_info(docx_path)
     exam.questions = extract_questions(docx_path)
     return exam
+
+
+def save_exam(exam: ExamPreview):
+    db = SessionLocal()
+    try:
+        # Validate exam data
+        if not exam.subject_id:
+            raise CustomException(
+                f"Môn học không được cung cấp.",
+                HTTPStatus.BAD_REQUEST
+            )
+
+        subject = db.query(Subject).filter(Subject.id == int(exam.subject_id)).first()
+        if not subject:
+            raise CustomException(
+                f"Môn học có ID = {exam.subject_id} không tồn tại trong hệ thống.",
+                HTTPStatus.NOT_FOUND
+            )
+
+        if not exam.questions or len(exam.questions) == 0:
+            raise CustomException("Chưa có câu hỏi nào cho bài kiểm tra này.", HTTPStatus.BAD_REQUEST)
+
+        if len(exam.questions) < exam.number_quiz:
+            raise CustomException(
+                f"Số câu hỏi chưa đủ: {len(exam.questions)} / {exam.number_quiz}.",
+                HTTPStatus.BAD_REQUEST
+            )
+
+        if not exam.duration_minutes or exam.duration_minutes <= 0:
+            raise CustomException("Chưa thiết lập thời gian cho bài thi.", HTTPStatus.BAD_REQUEST)
+
+        if not exam.start_date:
+            raise CustomException("Ngày bắt đầu không được để trống.", HTTPStatus.BAD_REQUEST)
+
+        # 1. Tạo exam
+        new_exam = Exam(
+            name=f"{subject.subject_code}_{uuid.uuid4().hex[:6].upper()}" if not exam.name else exam.name,
+            subject_id=int(exam.subject_id),
+            number_quiz=exam.number_quiz,
+            start_date=convert_to_datetime(exam.start_date),
+            duration_minutes=exam.duration_minutes,
+            description=exam.description or "",
+            is_active=exam.is_active or True
+        )
+        db.add(new_exam)
+        db.commit()
+        db.refresh(new_exam)  # Lấy lại ID
+
+        # 2. Thêm câu hỏi
+        for question in exam.questions:
+            new_question = ExamQuestion(
+                exam_id=new_exam.id,
+                content=question.content or "",
+                file_id=question.file_id,
+                mark=question.mark,
+                unit=question.unit,
+                mix_choices=question.mix_choices
+            )
+            db.add(new_question)
+            db.flush()
+
+            # 3. Thêm đáp án
+            for option in question.options:
+                # Use the model QuestionChoice, not the schema
+                new_choice = app.model.models.QuestionChoice(
+                    question_id=new_question.id,
+                    content=option.content,
+                    is_correct=option.is_correct
+                )
+                db.add(new_choice)
+
+        db.commit()
+        return new_exam.id
+
+    except CustomException:
+        db.rollback()
+        raise
+    except Exception as e:
+        db.rollback()
+        raise CustomException(f"Đã xảy ra lỗi hệ thống khi lưu bài thi: {str(e)}", HTTPStatus.INTERNAL_SERVER_ERROR)
+    finally:
+        db.close()
