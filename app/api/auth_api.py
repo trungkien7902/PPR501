@@ -1,11 +1,13 @@
 from http import HTTPStatus
 
 from app.service.auth_service import login
-from fastapi import HTTPException, APIRouter
+from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from app.schema.schema import AuthRequest, TokenResponse, IResponseBase
+from typing import Any
 
 auth_router = APIRouter()
+
 
 @auth_router.post("/login")
 def login_user(auth_request: AuthRequest):
@@ -13,7 +15,7 @@ def login_user(auth_request: AuthRequest):
     if not response:
         return JSONResponse(
             status_code=HTTPStatus.UNAUTHORIZED,
-            content=IResponseBase[None](
+            content=IResponseBase[Any](
                 code=HTTPStatus.UNAUTHORIZED,
                 message="Tên đăng nhập hoặc mật khẩu không đúng",
             ).model_dump()
