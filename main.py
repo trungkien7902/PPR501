@@ -27,4 +27,4 @@ async def custom_exception_handler(request: Request, exc: CustomException) -> JS
     )
 
 app.include_router(auth_api.auth_router, prefix="/auth")
-app.include_router(exam_api.exam_route, prefix="/exam")
+app.include_router(exam_api.exam_route, prefix="/exams")

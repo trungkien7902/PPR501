@@ -6,6 +6,7 @@ from sqlalchemy.orm import relationship, declarative_base
 
 Base = declarative_base()
 
+
 # ----------------- Account -----------------
 class Account(Base):
     __tablename__ = "accounts"
@@ -23,6 +24,8 @@ class Account(Base):
     role = Column(String(50), default="STUDENT", nullable=False, index=True)
 
     results = relationship("Result", back_populates="student", cascade="all, delete-orphan")
+    assignments = relationship("SubjectAssign", back_populates="account", cascade="all, delete-orphan")
+    exam_assignments = relationship("ExamAssign", back_populates="account", cascade="all, delete-orphan")
 
 
 # ----------------- Subject -----------------
@@ -34,6 +37,19 @@ class Subject(Base):
     subject_code = Column(String(50), unique=True, nullable=False, index=True)
 
     exams = relationship("Exam", back_populates="subject", cascade="all, delete-orphan")
+    assignments = relationship("SubjectAssign", back_populates="subject")
+
+
+# ----------------- SubjectAssign -----------------
+class SubjectAssign(Base):
+    __tablename__ = "subject_assigns"
+
+    id = Column(Integer, primary_key=True, index=True)
+    subject_id = Column(Integer, ForeignKey("subjects.id"), nullable=False, index=True)
+    account_id = Column(Integer, ForeignKey("accounts.id"), nullable=False, index=True)
+
+    subject = relationship("Subject", back_populates="assignments")
+    account = relationship("Account", back_populates="assignments")
 
 
 # ----------------- Exam -----------------
@@ -44,14 +60,16 @@ class Exam(Base):
     name = Column(String(100), nullable=False, index=True)
     subject_id = Column(Integer, ForeignKey("subjects.id"), nullable=False, index=True)
     number_quiz = Column(Integer, nullable=False)
-    start_date = Column(DateTime, nullable=False)
+    valid_from = Column(DateTime, nullable=False)
+    valid_to = Column(DateTime, nullable=False)
     duration_minutes = Column(Integer, nullable=False)
     description = Column(Text, nullable=True)
-    is_active = Column(Boolean, default=True)
+    is_active = Column(String(20), default=True)
 
     subject = relationship("Subject", back_populates="exams")
     questions = relationship("ExamQuestion", back_populates="exam", cascade="all, delete-orphan")
     results = relationship("Result", back_populates="exam", cascade="all, delete-orphan")
+    assignments = relationship("ExamAssign", back_populates="exam", cascade="all, delete-orphan")
 
 
 # ----------------- ExamQuestion -----------------
@@ -82,6 +100,18 @@ class QuestionChoice(Base):
 
     question = relationship("ExamQuestion", back_populates="choices")
     result_details = relationship("ResultDetail", back_populates="selected_option", cascade="all, delete-orphan")
+
+
+# ----------------- ExamAssign -----------------
+class ExamAssign(Base):
+    __tablename__ = "exam_assigns"
+
+    id = Column(Integer, primary_key=True, index=True)
+    exam_id = Column(Integer, ForeignKey("exams.id"), nullable=False, index=True)
+    account_id = Column(Integer, ForeignKey("accounts.id"), nullable=False, index=True)
+
+    exam = relationship("Exam", back_populates="assignments")
+    account = relationship("Account", back_populates="exam_assignments")
 
 
 # ----------------- Result -----------------

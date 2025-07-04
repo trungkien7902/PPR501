@@ -1,6 +1,6 @@
 from http import HTTPStatus
 from typing import Generic, TypeVar, List, Optional
-from pydantic import BaseModel, constr, ConfigDict
+from pydantic import BaseModel, constr
 
 T = TypeVar("T")
 
@@ -32,26 +32,26 @@ class TokenResponse(BaseModel):
 
 
 # Exam Service Schema
-class QuestionChoice(BaseModel):
+class Options(BaseModel):
     content: str
-    is_correct: bool = False
+    is_correct: bool
 
 
-class QuestionPreview(BaseModel):
+class Questions(BaseModel):
     content: Optional[str] = None
     file_id: Optional[str] = None
     mark: float = 1.0
     unit: Optional[str] = None
     mix_choices: bool = False
-    options: List[QuestionChoice] = []
+    options: List[Options] = []
 
 
-class ExamPreview(BaseModel):
-    name: Optional[str] = None
-    subject_id: Optional[str] = None
-    number_quiz: Optional[int] = 0
-    start_date: Optional[str] = None
-    duration_minutes: Optional[int] = 0
-    description: Optional[str] = None
-    is_active: Optional[bool] = True
-    questions: List[QuestionPreview] = []
+class ExamResponse(BaseModel):
+    name: str
+    subject_code: str
+    number_quiz: int
+    valid_from: str
+    valid_to: str
+    duration_minutes: int
+    description: str
+    questions: List[Questions]
