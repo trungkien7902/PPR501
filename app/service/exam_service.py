@@ -5,9 +5,9 @@ from typing import List
 from docx import Document
 import zipfile
 
-from app.core.app_config import CustomException
+
 from app.model.models import Subject
-from app.schema.schema import ExamPreview, QuestionPreview, QuestionChoice
+from app.schema.schema import ExamPreview, QuestionPreview, QuestionChoice, CustomException
 from app.utils.date_time_utils import is_valid_date, convert_to_datetime
 from app.model.models import Exam, ExamQuestion, QuestionChoice
 from app.core.db_connect import SessionLocal
@@ -18,7 +18,6 @@ db = SessionLocal()
 
 
 def extract_exam_info(docx_path: str) -> ExamPreview:
-    db = SessionLocal()
     doc = Document(docx_path)
     exam = ExamPreview()
 
@@ -160,7 +159,6 @@ def parse_full_exam(docx_path: str) -> ExamPreview:
 
 
 def save_exam(exam: ExamPreview):
-    db = SessionLocal()
     try:
         # Validate exam data
         if not exam.subject_id:
@@ -221,7 +219,7 @@ def save_exam(exam: ExamPreview):
             # 3. Thêm đáp án
             for option in question.options:
                 # Use the model QuestionChoice, not the schema
-                new_choice = app.model.models.QuestionChoice(
+                new_choice = QuestionChoice(
                     question_id=new_question.id,
                     content=option.content,
                     is_correct=option.is_correct

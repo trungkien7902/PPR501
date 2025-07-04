@@ -1,3 +1,4 @@
+from http import HTTPStatus
 from typing import Generic, TypeVar, List, Optional
 from pydantic import BaseModel, constr, ConfigDict
 
@@ -9,6 +10,11 @@ class IResponseBase(BaseModel, Generic[T]):
     message: str = "Success"
     items: T | None = None
 
+# Exception handler
+class CustomException(Exception):
+    def __init__(self, message: str = "Có lỗi xảy ra", status_code: int = HTTPStatus.INTERNAL_SERVER_ERROR):
+        self.message = message
+        self.status_code = status_code
 
 # Auth Service Schema
 ## Request
