@@ -1,7 +1,7 @@
 from app.core.db_connect import SessionLocal
-from app.model.models import Account, Subject
+from app.model.models import Account, Subject, SubjectAssign, ExamAssign, Exam
 from app.utils.jwt_util import hash_password
-
+import random
 def seed_accounts():
     db = SessionLocal()
     try:
@@ -60,6 +60,55 @@ def seed_subject():
     finally:
         db.close()
 
+def seed_subject_assign():
+    db = SessionLocal()
+    try:
+        subjects = db.query(Subject).all()
+        accounts = db.query(Account).filter(Account.role == "STAFF").all()
+        if not subjects or not accounts:
+            print("No subjects or staff accounts to assign.")
+            return
+
+        assignments = []
+        for subject in subjects:
+            staff = random.choice(accounts)
+            assignments.append(
+                SubjectAssign(
+                    subject_id=subject.id,
+                    account_id=staff.id
+                )
+            )
+        db.add_all(assignments)
+        db.commit()
+        print("Seeded subject assignments.")
+    finally:
+        db.close()
+
+def seed_exam_assign():
+    db = SessionLocal()
+    try:
+        exams = db.query(Exam).all()
+        accounts = db.query(Account).filter(Account.role == "STAFF").all()
+        if not exams or not accounts:
+            print("No subjects or student to assign.")
+            return
+
+        assignments = []
+        for exam in exams:
+            student = random.choice(accounts)
+            assignments.append(
+                ExamAssign(
+                    exam_id=exam.id,
+                    account_id=student.id
+                )
+            )
+        db.add_all(assignments)
+        db.commit()
+        print("Seeded subject assignments.")
+    finally:
+        db.close()
 if __name__ == "__main__":
     # seed_accounts()
-    seed_subject()
+    # seed_subject()
+    # seed_subject_assign()
+    seed_exam_assign()
