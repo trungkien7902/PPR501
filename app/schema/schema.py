@@ -55,3 +55,8 @@ class ExamResponse(BaseModel):
     duration_minutes: int
     description: str
     questions: List[Questions]
+
+# Subject Service Schema
+class SubjectResponse(BaseModel):
+    name: str
+    subject_code: str
