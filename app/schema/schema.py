@@ -37,13 +37,23 @@ class Options(BaseModel):
     is_correct: bool
 
 
-class Questions(BaseModel):
+class QuestionChoiceResponse(BaseModel):
+    question_id: int = None
+    content: Optional[str] = None
+    id: int = None
+
+
+class QuestionResponse(BaseModel):
     content: Optional[str] = None
     file_id: Optional[str] = None
     mark: float = 1.0
     unit: Optional[str] = None
     mix_choices: bool = False
     options: List[Options] = []
+    selectedChoice: int = None
+    questionChoices: List[QuestionChoiceResponse] = []
+    exam_id: int = None
+    id: int = None
 
 
 class ExamResponse(BaseModel):
@@ -54,7 +64,9 @@ class ExamResponse(BaseModel):
     valid_to: str
     duration_minutes: int
     description: str
-    questions: List[Questions]
+    questions: List[QuestionResponse]
+    id: int
+
 
 # Subject Service Schema
 class SubjectResponse(BaseModel):

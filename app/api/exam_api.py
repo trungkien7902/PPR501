@@ -1,8 +1,9 @@
 from http import HTTPStatus
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
-from app.schema.schema import IResponseBase, ExamResponse
+from app.schema.schema import IResponseBase, ExamResponse, QuestionResponse
 from app.service.exam_service import get_exam_by_subject_code
+from app.service.question_service import submit_exam
 from typing import List
 
 exam_route = APIRouter()
@@ -16,6 +17,18 @@ def get_exam(subject_code: str):
         content=IResponseBase[List[ExamResponse]](
             status=HTTPStatus.OK,
             message=f"Lấy danh sách bài kiểm tra môn {subject_code} thành công.",
+            items=response
+        ).model_dump()
+    )
+
+@exam_route.post("/exam_submit")
+def submit_exam_api(answers: List[QuestionResponse], exam_id: int, student_id: int):
+    response = submit_exam(answers, exam_id, student_id)
+    return JSONResponse(
+        status_code=HTTPStatus.OK,
+        content=IResponseBase[List[ExamResponse]](
+            status=HTTPStatus.OK,
+            message=response,
             items=response
         ).model_dump()
     )
