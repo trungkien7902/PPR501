@@ -56,6 +56,18 @@ class ExamResponse(BaseModel):
     description: str
     questions: List[Questions]
 
+
+class ExamUpdateRequest(BaseModel):
+    exam_code: str
+    account_id: int
+    name: str
+    number_quiz: int
+    valid_from: str
+    valid_to: str
+    duration_minutes: int
+    description: str
+    questions: List[Questions]
+
 # Subject Service Schema
 class SubjectResponse(BaseModel):
     name: str
