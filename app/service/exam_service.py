@@ -19,6 +19,7 @@ def get_exam_by_subject_code(subject_code: str) -> List[ExamResponse]:
         exam_responses = []
         for exam in exams:
             exam_responses.append(ExamResponse(
+                id=exam.id,
                 name=exam.name,
                 subject_code=subject.subject_code,
                 number_quiz=exam.number_quiz,

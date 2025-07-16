@@ -121,7 +121,7 @@ class Result(Base):
     id = Column(Integer, primary_key=True, index=True)
     exam_id = Column(Integer, ForeignKey("exams.id"), nullable=False, index=True)
     student_id = Column(Integer, ForeignKey("accounts.id"), nullable=False, index=True)
-    score = Column(Integer, nullable=False)
+    score = Column(Float, nullable=False)
 
     __table_args__ = (
         CheckConstraint("score >= 0", name="check_result_score_non_negative"),
