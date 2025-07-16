@@ -1,9 +1,11 @@
 from http import HTTPStatus
 
 from app.core.db_connect import SessionLocal
-from app.model.models import ExamQuestion, QuestionChoice, Result
-from app.schema.schema import QuestionResponse, CustomException, QuestionChoiceResponse
+from app.model.models import ExamQuestion, QuestionChoice, Result, Exam
+from app.schema.schema import QuestionResponse, CustomException, QuestionChoiceResponse, TakeExamRequest, AuthRequest
 from typing import List
+
+from app.service.auth_service import login
 
 db = SessionLocal()
 
@@ -87,3 +89,5 @@ def submit_exam(answers: List[QuestionResponse], exam_id: int, student_id: int) 
         raise CustomException(f"Đã xảy ra lỗi hệ thống: {str(e)}", HTTPStatus.INTERNAL_SERVER_ERROR)
     finally:
         db.close()
+
+

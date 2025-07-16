@@ -1,9 +1,14 @@
+import datetime
 from http import HTTPStatus
 from typing import List
+from app.model.models import Subject, ExamQuestion
+from app.schema.schema import CustomException, ExamResponse, TakeExamRequest, QuestionResponse, AuthRequest
 from app.model.models import Subject, SubjectAssign, ExamQuestion
 from app.schema.schema import CustomException, ExamResponse, ExamUpdateRequest, Options
 from app.model.models import Exam
 from app.core.db_connect import SessionLocal
+from app.service.auth_service import login
+from app.service.question_service import get_question_choices_by_question_id, get_questions_by_exam_id
 
 db = SessionLocal()
 
@@ -81,6 +86,47 @@ def update_exam(request: ExamUpdateRequest) -> None:
             exam.questions.append(new_question)
         db.add(exam)
         db.commit()
+    except CustomException:
+        db.rollback()
+        raise
+    except Exception as e:
+        db.rollback()
+        raise CustomException(f"Đã xảy ra lỗi hệ thống: {str(e)}", HTTPStatus.INTERNAL_SERVER_ERROR)
+    finally:
+        db.close()
+
+
+def take_exam(request: TakeExamRequest) -> ExamResponse:
+    try:
+        AuthRequest(
+            username=request.username,
+            password=request.password
+        )
+        auth_credit = login(AuthRequest(
+            username=request.username,
+            password=request.password
+        ))
+        if not auth_credit:
+            raise CustomException("Thông tin đăng nhập không hợp lệ.", HTTPStatus.UNAUTHORIZED)
+        exam = db.query(Exam).filter(Exam.name == request.exam_code).first()
+        if not exam:
+            raise CustomException(f"Bài kiểm tra với mã {request.exam_code} không tồn tại.", HTTPStatus.NOT_FOUND)
+
+        exam_id = exam.id
+        if (exam.valid_from > datetime.datetime.now() or exam.valid_to < datetime.datetime.now()):
+            raise CustomException("Thời gian làm bài không hợp lệ.", HTTPStatus.BAD_REQUEST)
+
+        return ExamResponse(
+            id=exam.id,
+            name=exam.name,
+            subject_code=exam.subject.subject_code,
+            number_quiz=exam.number_quiz,
+            valid_from=exam.valid_from.isoformat(),
+            valid_to=exam.valid_to.isoformat(),
+            duration_minutes=exam.duration_minutes,
+            description=exam.description,
+            questions=get_questions_by_exam_id(exam_id)
+        )
     except CustomException:
         db.rollback()
         raise

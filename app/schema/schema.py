@@ -80,6 +80,12 @@ class ExamUpdateRequest(BaseModel):
     description: str
     questions: List[Questions]
 
+class TakeExamRequest(BaseModel):
+    exam_code: str
+    username: str
+    password: str
+
+
 # Subject Service Schema
 class SubjectResponse(BaseModel):
     name: str
