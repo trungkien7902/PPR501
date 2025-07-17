@@ -78,7 +78,7 @@ class ExamUpdateRequest(BaseModel):
     valid_to: str
     duration_minutes: int
     description: str
-    questions: List[Questions]
+    questions: List[QuestionResponse]
 
 class TakeExamRequest(BaseModel):
     exam_code: str
