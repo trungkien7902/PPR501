@@ -108,7 +108,4 @@ def seed_exam_assign():
     finally:
         db.close()
 if __name__ == "__main__":
-    # seed_accounts()
-    # seed_subject()
-    # seed_subject_assign()
-    seed_exam_assign()
+    print(hash_password("123456"))

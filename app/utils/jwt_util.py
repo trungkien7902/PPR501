@@ -1,6 +1,7 @@
 from http import HTTPStatus
 
 import jwt
+import bcrypt
 from datetime import datetime, timedelta
 from app.core.config import JWT_SECRET_KEY, JWT_ALGORITHM, JWT_EXP_DELTA_SECONDS
 from fastapi import Depends, HTTPException, status
@@ -11,15 +12,12 @@ from app.schema.schema import CustomException
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
 
 # hashing
+
 def hash_password(password: str) -> str:
-    return jwt.encode({"password": password}, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
+    return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    try:
-        decoded = jwt.decode(hashed_password, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-        return decoded.get("password") == plain_password
-    except jwt.InvalidTokenError:
-        return False
+    return bcrypt.checkpw(plain_password.encode(), hashed_password.encode())
 
 
 # Create JWT token
