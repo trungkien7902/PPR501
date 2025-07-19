@@ -6,7 +6,7 @@ T = TypeVar("T")
 
 
 class IResponseBase(BaseModel, Generic[T]):
-    code: int = 100
+    code: int = 200
     message: str = "Success"
     items: T | None = None
 
@@ -30,63 +30,56 @@ class TokenResponse(BaseModel):
     access_token: str
     refresh_token: str
 
-
-# Exam Service Schema
 class Options(BaseModel):
+    id: int
+    question_id: int
     content: str
-    is_correct: bool
-
-
-class QuestionChoiceResponse(BaseModel):
-    question_id: int = None
-    content: Optional[str] = None
-    id: int = None
-
+    is_correct: bool | None = None  # Optional for non-admin users
 
 class QuestionResponse(BaseModel):
-    content: Optional[str] = None
-    file_id: Optional[str] = None
-    mark: float = 1.0
-    unit: Optional[str] = None
-    mix_choices: bool = False
-    options: List[Options] = []
-    selectedChoice: int = None
-    questionChoices: List[QuestionChoiceResponse] = []
-    exam_id: int = None
-    id: int = None
+    id: int
+    content: str
+    file_id: str | None = None
+    mark: float
+    unit: str
+    mix_choices: bool
+    options: List['Options'] = []
 
-
+# Exam Response
 class ExamResponse(BaseModel):
+    id: int
     name: str
     subject_code: str
     number_quiz: int
-    valid_from: str
-    valid_to: str
+    valid_from: str  # ISO format date string
+    valid_to: str  # ISO format date string
     duration_minutes: int
-    description: str
-    questions: List[QuestionResponse]
+    description: Optional[str] = None
+    questions: List['QuestionResponse'] = []
+
+# Get list of subjects
+class SubjectResponse(BaseModel):
     id: int
-
-
-
-class ExamUpdateRequest(BaseModel):
-    exam_code: str
-    account_id: int
     name: str
-    number_quiz: int
-    valid_from: str
-    valid_to: str
-    duration_minutes: int
-    description: str
-    questions: List[QuestionResponse]
+    subject_code: str
 
 class TakeExamRequest(BaseModel):
     exam_code: str
     username: str
     password: str
 
+class AnswerItem(BaseModel):
+    question_id: int
+    option_id: int
 
-# Subject Service Schema
-class SubjectResponse(BaseModel):
-    name: str
-    subject_code: str
+class SubmitExamRequest(BaseModel):
+    username: str
+    exam_code: str
+    answers: List[AnswerItem]
+
+class SubmitExamResponse(BaseModel):
+    exam_code: str
+    score: float
+    total_questions: int
+    correct_answers: int
+    incorrect_answers: int

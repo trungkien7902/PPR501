@@ -1,15 +1,16 @@
 from http import HTTPStatus
 
 from app.service.auth_service import login
+from app.service.exam_service import take_exam
 from fastapi import APIRouter, Body
 from fastapi.responses import JSONResponse
-from app.schema.schema import AuthRequest, TokenResponse, IResponseBase, CustomException
+from app.schema.schema import AuthRequest, TokenResponse, IResponseBase, CustomException, TakeExamRequest, ExamResponse
 from typing import Any
 
 auth_router = APIRouter()
 
 
-@auth_router.post("/login")
+@auth_router.post("/login/manager")
 def login_user(auth_request: AuthRequest):
     response = login(auth_request)
     if not response:
@@ -28,6 +29,7 @@ def login_user(auth_request: AuthRequest):
             items=response
         ).model_dump()
     )
+
 
 @auth_router.post("/refresh", response_model=IResponseBase[TokenResponse])
 def refresh_access_token(refresh_token: str = Body(...)):
@@ -54,7 +56,19 @@ def refresh_access_token(refresh_token: str = Body(...)):
             refresh_token=refresh_token
         )
     )
+
+
 @auth_router.get("/logout")
 def logout_user():
-    # TODO: Implement logout functionality
+    # Placeholder for logout functionality
     return {"message": "Logout endpoint is not implemented yet."}
+
+
+@auth_router.post("/login/student", response_model=IResponseBase[ExamResponse])
+def login_student(auth_request: TakeExamRequest):
+    response = take_exam(auth_request)
+    return IResponseBase[ExamResponse](
+        code=HTTPStatus.OK,
+        message="Lấy thông tin bài thi thành công",
+        items=response
+    ).model_dump()

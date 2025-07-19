@@ -1,7 +1,9 @@
+from starlette.middleware.cors import CORSMiddleware
+
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
-from app.api import auth_api, exam_api
+from app.api import auth_api, subject_api, exam_api
 from app.middleware.auth_middleware import AuthMiddleware
 from app.schema.schema import IResponseBase, CustomException
 
@@ -26,5 +28,15 @@ async def custom_exception_handler(request: Request, exc: CustomException) -> JS
         content=response_data.model_dump()
     )
 
-app.include_router(auth_api.auth_router, prefix="/auth")
-app.include_router(exam_api.exam_route, prefix="/exams")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+app.include_router(auth_api.auth_router, prefix="/auth", tags=["Authentication"])
+app.include_router(subject_api.subject_route, prefix="/subjects", tags=["Subjects"])
+
+app.include_router(exam_api.exam_route, prefix="/exams", tags=["Exams"])
